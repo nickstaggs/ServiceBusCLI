@@ -88,6 +88,13 @@ namespace ServiceBusCLI
         public string ServiceBusConnString { get; set; }
 
         [Option(
+            shortName: 'u',
+            longName: "userProperties",
+            Required = false,
+            HelpText = "User properties to be placed on message to be written to service bus, format: <k1>:<v1>,<k2>:<v2>,...,<kn>:<vn> no spaces")]
+        public string UserProperties { get; set; }
+
+        [Option(
             shortName: 'v',
             longName: "verbose",
             Required = false,
@@ -146,7 +153,9 @@ namespace ServiceBusCLI
                        {
                            Task.Run(async () =>
                            {
-                               await Write((ISenderClient)client, o.Message);
+                               var message = CreateSBMessage(o.Message, o.UserProperties);
+
+                               await Write((ISenderClient)client, message);
                            }).GetAwaiter().GetResult();
                        }
 
@@ -226,7 +235,7 @@ namespace ServiceBusCLI
             return messages.ToString();
         }
 
-        static async Task Write(ISenderClient client, string message)
+        static async Task Write(ISenderClient client, Message message)
         {
             Type clientType = client.GetType();
 
@@ -236,14 +245,9 @@ namespace ServiceBusCLI
                 return;
             }
 
-            if (string.IsNullOrEmpty(message))
-            {
-                Console.WriteLine("Message required to write to service bus");
-            }
-
             try
             {
-                await client.SendAsync(new Message(Encoding.UTF8.GetBytes(message)));
+                await client.SendAsync(message);
             } 
             catch (Exception e)
             {
@@ -287,6 +291,42 @@ namespace ServiceBusCLI
 
                 return new SubscriptionClient(serviceBusConnString, topicId, subId);
             }
+        }
+
+        static Message CreateSBMessage(string message, string userPropsString)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                Console.WriteLine("Message required to write to service bus");
+            }
+
+            var sbMessage = new Message(Encoding.UTF8.GetBytes(message));
+
+
+            if (!string.IsNullOrEmpty(userPropsString))
+            {
+                var userPropStrings = userPropsString.Split(',');
+
+                IDictionary<string, object> userPropKVs = new Dictionary<string, object>();
+
+                foreach (var userPropString in userPropStrings)
+                {
+                    var keyAndVal = userPropString.Split(':');
+                    if (keyAndVal.Length != 2)
+                    {
+                        throw new ArgumentException("User Properties argument is malformed please check format and try again.");
+                    }
+
+                    userPropKVs.Add(keyAndVal[0], keyAndVal[1]);
+                }
+
+                foreach (var keyVal in userPropKVs)
+                {
+                    sbMessage.UserProperties[keyVal.Key] = keyVal.Value;
+                }
+            }
+
+            return sbMessage;
         }
 
         static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)

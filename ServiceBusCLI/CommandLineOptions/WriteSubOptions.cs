@@ -5,12 +5,13 @@ using System.Text;
 
 namespace ServiceBusCLI.CommandLineOptions
 {
-    public class WriteSubOptions
+    [Verb("write", HelpText = "Writes messages to a service bus queue or topic")]
+    public class WriteSubOptions : CommonSubOptions
     {
         [Option(
             shortName: 'm',
             longName: "message",
-            Required = false,
+            Required = true,
             HelpText = "Message to send to queue/topic")]
         public string Message { get; set; }
 

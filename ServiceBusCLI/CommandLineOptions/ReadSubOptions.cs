@@ -5,6 +5,8 @@ using System.Text;
 
 namespace ServiceBusCLI.CommandLineOptions
 {
+
+    [Verb("read", HelpText = "Reads messages from service bus queue or topic/subscription")]
     public class ReadSubOptions : CommonSubOptions
     {
         [Option(
@@ -23,12 +25,5 @@ namespace ServiceBusCLI.CommandLineOptions
             HelpText = "Time in seconds to wait to read messages off the queue/topic/subscription, -1 to wait indefinitely")]
         public int TimeToWait { get; set; }
 
-        [Option(
-            shortName: 'p',
-            longName: "peek",
-            Required = false,
-            Default = false,
-            HelpText = "Peek messages instead of reading and taking them off the queue/topic/subscription")]
-        public bool Peek { get; set; }
     }
 }

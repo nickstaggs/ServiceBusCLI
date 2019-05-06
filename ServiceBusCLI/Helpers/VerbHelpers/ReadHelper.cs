@@ -1,22 +1,47 @@
 ﻿using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
+using ServiceBusCLI.CommandLineOptions;
+using ServiceBusCLI.Helpers.ResourceHelpers;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace ServiceBusCLI.VerbHelpers
+namespace ServiceBusCLI.Helpers.VerbHelpers
 {
     public static class ReadHelper
     {
+        public static bool Verbose { get; private set; } = false;
+        public static IReceiverClient client;
 
-        static string Read(IReceiverClient client, bool peek, int numMessages, int time)
+        public static void Init(CommonSubOptions o)
         {
+            ArgumentHelper.ValidateArguments(o);
+
+            if (o.Verbose)
+            {
+                Verbose = true;
+            }
+
+            client = (IReceiverClient)ServiceBusHelper.GetClient(o.ServiceBusConnString, o.Queue, o.Topic, o.Subscription, o.Peek, Verbose);
+        }
+
+        public static int Read(ReadSubOptions opts)
+        {
+            try
+            {
+                Init(opts);
+                ArgumentHelper.ValidateArguments(opts);
+            }
+            catch(ArgumentException e)
+            {
+                return 1;
+            }
 
             System.Timers.Timer timer = new System.Timers.Timer();
             System.Timers.Timer logTimer = new System.Timers.Timer() { Interval = 2000, AutoReset = true };
 
-            client.PrefetchCount = numMessages;
+            client.PrefetchCount = opts.NumberOfMessages;
 
             var messages = new StringBuilder();
             int n = 0;
@@ -30,20 +55,14 @@ namespace ServiceBusCLI.VerbHelpers
                 }
             };
 
-            if (time >= 0)
+            if (opts.TimeToWait >= 0)
             {
-                timer.Interval = time * 1000;
+                timer.Interval = opts.TimeToWait * 1000;
                 timer.Start();
             }
 
             logTimer.Start();
-
-            var messageHandlerOptions = new MessageHandlerOptions(ExceptionReceivedHandler)
-            {
-                MaxConcurrentCalls = 1,
-                AutoComplete = false
-            };
-
+            
             try
             {
                 client.RegisterMessageHandler(async (Message message, CancellationToken token) =>
@@ -57,20 +76,21 @@ namespace ServiceBusCLI.VerbHelpers
 
                     messages.Append(Encoding.UTF8.GetString(message.Body));
 
-                    if (!peek)
+                    if (!opts.Peek)
                     {
                         await client.CompleteAsync(message.SystemProperties.LockToken);
                     }
 
                     n++;
 
-                }, messageHandlerOptions);
+                }, ServiceBusHelper.MessageHandlerOptions);
 
-                while (n < numMessages && !isTimeUp) { }
+                while (n < opts.NumberOfMessages && !isTimeUp) { }
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Ooops, trying to read messages failed: {e}");
+                return 1;
             }
             finally
             {
@@ -79,7 +99,7 @@ namespace ServiceBusCLI.VerbHelpers
                 logTimer.Stop();
             }
 
-            return messages.ToString();
+            return 0;
         }
     }
 }

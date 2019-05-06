@@ -30,6 +30,13 @@ namespace ServiceBusCLI.CommandLineOptions
         public string Topic { get; set; }
 
         [Option(
+            shortName: 'q',
+            longName: "queue",
+            Required = false,
+            HelpText = "Queue ID")]
+        public string Queue { get; set; }
+
+        [Option(
             shortName: 's',
             longName: "subscription",
             Required = false,
@@ -37,10 +44,11 @@ namespace ServiceBusCLI.CommandLineOptions
         public string Subscription { get; set; }
 
         [Option(
-            shortName: 'q',
-            longName: "queue",
+            shortName: 'p',
+            longName: "peek",
             Required = false,
-            HelpText = "Queue ID")]
-        public string Queue { get; set; }
+            Default = false,
+            HelpText = "Peek messages instead of reading and taking them off the queue/topic/subscription")]
+        public bool Peek { get; set; }
     }
 }

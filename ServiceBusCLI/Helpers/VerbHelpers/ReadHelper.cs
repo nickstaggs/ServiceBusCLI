@@ -43,7 +43,6 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
 
             client.PrefetchCount = opts.NumberOfMessages;
 
-            var messages = new StringBuilder();
             int n = 0;
             bool isTimeUp = false;
 
@@ -73,8 +72,6 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
                     }
 
                     Console.WriteLine(Encoding.UTF8.GetString(message.Body));
-
-                    messages.Append(Encoding.UTF8.GetString(message.Body));
 
                     if (!opts.Peek)
                     {

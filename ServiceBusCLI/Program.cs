@@ -12,11 +12,11 @@ using ServiceBusCLI.Helpers.VerbHelpers;
 
 namespace ServiceBusCLI
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            Parser.Default.ParseArguments<ReadSubOptions, WriteSubOptions>(args)
+            return Parser.Default.ParseArguments<ReadSubOptions, WriteSubOptions>(args)
                 .MapResult(
                     (WriteSubOptions opts) => WriteHelper.Write(opts),
                     (ReadSubOptions opts) => ReadHelper.Read(opts),

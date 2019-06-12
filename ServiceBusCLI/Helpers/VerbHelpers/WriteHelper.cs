@@ -50,14 +50,6 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
 
         public static async Task WriteMessage(Message message)
         {
-            Type clientType = client.GetType();
-
-            if (client.GetType() == typeof(SubscriptionClient))
-            {
-                Console.WriteLine("Cannot write message to subscription only topic or queue, please remove subscription Id");
-                return;
-            }
-
             try
             {
                 await client.SendAsync(message);

@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sbcli", "ServiceBusCLI\sbcli.csproj", "{4E168F79-B783-4B27-A9D6-7FF370A7969E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sbcli.Test", "sbcli.Test\sbcli.Test.csproj", "{20A3DD1F-71C8-407E-ACF3-63622F911F45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4E168F79-B783-4B27-A9D6-7FF370A7969E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E168F79-B783-4B27-A9D6-7FF370A7969E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E168F79-B783-4B27-A9D6-7FF370A7969E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20A3DD1F-71C8-407E-ACF3-63622F911F45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20A3DD1F-71C8-407E-ACF3-63622F911F45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20A3DD1F-71C8-407E-ACF3-63622F911F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20A3DD1F-71C8-407E-ACF3-63622F911F45}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

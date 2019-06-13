@@ -66,7 +66,7 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
             }
         }
 
-        static Message CreateSBMessage(string message, string userPropsString)
+        public static Message CreateSBMessage(string message, string userPropsString)
         {
             if (string.IsNullOrEmpty(message))
             {
@@ -78,28 +78,33 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
 
             if (!string.IsNullOrEmpty(userPropsString))
             {
-                var userPropStrings = userPropsString.Split(',');
-
-                IDictionary<string, object> userPropKVs = new Dictionary<string, object>();
-
-                foreach (var userPropString in userPropStrings)
-                {
-                    var keyAndVal = userPropString.Split(':');
-                    if (keyAndVal.Length != 2)
-                    {
-                        throw new ArgumentException("User Properties argument is malformed please check format and try again.");
-                    }
-
-                    userPropKVs.Add(keyAndVal[0], keyAndVal[1]);
-                }
-
-                foreach (var keyVal in userPropKVs)
-                {
-                    sbMessage.UserProperties[keyVal.Key] = keyVal.Value;
-                }
+                AddUserProperties(sbMessage, userPropsString);
             }
 
             return sbMessage;
+        }
+
+        public static void AddUserProperties(Message message, string userProperties)
+        {
+            var userPropStrings = userProperties.Split(',');
+
+            IDictionary<string, object> userPropKVs = new Dictionary<string, object>();
+
+            foreach (var userPropString in userPropStrings)
+            {
+                var keyAndVal = userPropString.Split(':');
+                if (keyAndVal.Length != 2)
+                {
+                    throw new ArgumentException("User Properties argument is malformed please check format and try again.");
+                }
+
+                userPropKVs.Add(keyAndVal[0], keyAndVal[1]);
+            }
+
+            foreach (var keyVal in userPropKVs)
+            {
+                message.UserProperties[keyVal.Key] = keyVal.Value;
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
     public static class ReadHelper
     {
         public static bool Verbose { get; private set; } = false;
-        public static IReceiverClient client;
+        public static IReceiverClient Client { get; set; }
 
         public static void Init(CommonSubOptions o)
         {
@@ -23,7 +23,10 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
                 Verbose = true;
             }
 
-            client = (IReceiverClient)ServiceBusHelper.GetClient(o.ServiceBusConnString, o.Queue, o.Topic, o.Subscription, o.Peek, Verbose);
+            if (Client == null)
+            {
+                Client = (IReceiverClient)ServiceBusHelper.GetClient(o.ServiceBusConnString, o.Queue, o.Topic, o.Subscription, o.Peek, Verbose);
+            }
         }
 
         public static int Read(ReadSubOptions opts)
@@ -41,7 +44,7 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
             System.Timers.Timer timer = new System.Timers.Timer();
             System.Timers.Timer logTimer = new System.Timers.Timer() { Interval = 2000, AutoReset = true };
 
-            client.PrefetchCount = opts.NumberOfMessages;
+            Client.PrefetchCount = opts.NumberOfMessages;
 
             int n = 0;
             bool isTimeUp = false;
@@ -64,7 +67,7 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
             
             try
             {
-                client.RegisterMessageHandler(async (Message message, CancellationToken token) =>
+                Client.RegisterMessageHandler(async (Message message, CancellationToken token) =>
                 {
                     if (Verbose)
                     {
@@ -75,7 +78,7 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
 
                     if (!opts.Peek)
                     {
-                        await client.CompleteAsync(message.SystemProperties.LockToken);
+                        await Client.CompleteAsync(message.SystemProperties.LockToken);
                     }
 
                     n++;
@@ -91,7 +94,7 @@ namespace ServiceBusCLI.Helpers.VerbHelpers
             }
             finally
             {
-                client.CloseAsync();
+                Client.CloseAsync();
                 timer.Stop();
                 logTimer.Stop();
             }
